@@ -1,5 +1,6 @@
 package com.uraurora.dependency.resolver.builder;
 
+import com.uraurora.dependency.resolver.IArtifactResolver;
 import org.eclipse.aether.repository.RemoteRepository;
 
 import java.util.List;
@@ -12,12 +13,42 @@ import java.util.List;
  */
 public class ArtifactResolverBuilder {
 
-    private final List<RemoteRepository> remoteRepositories;
+    /**
+     * maven远程仓库
+     */
+    private List<RemoteRepository> remoteRepositories;
 
-    private final String mavenHome;
+    /**
+     * maven home，maven路径
+     */
+    private String mavenHome;
 
-    public ArtifactResolverBuilder(List<RemoteRepository> remoteRepositories, String mavenHome) {
+    private ArtifactResolverBuilder() {
+    }
+
+    public static ArtifactResolverBuilder builder() {
+        return new ArtifactResolverBuilder();
+    }
+
+    public ArtifactResolverBuilder withRemoteRepositories(List<RemoteRepository> remoteRepositories) {
         this.remoteRepositories = remoteRepositories;
+        return this;
+    }
+
+    public ArtifactResolverBuilder withMavenHome(String mavenHome) {
         this.mavenHome = mavenHome;
+        return this;
+    }
+
+    public List<RemoteRepository> getRemoteRepositories() {
+        return remoteRepositories;
+    }
+
+    public String getMavenHome() {
+        return mavenHome;
+    }
+
+    public IArtifactResolver build() {
+        return null;
     }
 }

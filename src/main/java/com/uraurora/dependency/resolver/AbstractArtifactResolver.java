@@ -1,5 +1,7 @@
 package com.uraurora.dependency.resolver;
 
+import org.eclipse.aether.artifact.Artifact;
+
 /**
  * @author : gaoxiaodong04
  * @program : dependency-resolve-sdk
@@ -7,4 +9,5 @@ package com.uraurora.dependency.resolver;
  * @description :
  */
 public abstract class AbstractArtifactResolver {
+    private Artifact artifact;
 }
