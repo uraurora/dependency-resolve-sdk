@@ -1,5 +1,6 @@
 package com.uraurora.dependency.resolver.util;
 
+import com.uraurora.dependency.resolver.constants.FileConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.repository.internal.MavenRepositorySystemUtils;
 import org.apache.maven.shared.invoker.*;
@@ -14,13 +15,12 @@ import org.eclipse.aether.graph.Dependency;
 import org.eclipse.aether.impl.DefaultServiceLocator;
 import org.eclipse.aether.repository.LocalRepository;
 import org.eclipse.aether.repository.RemoteRepository;
-import org.eclipse.aether.resolution.ArtifactRequest;
-import org.eclipse.aether.resolution.ArtifactResolutionException;
-import org.eclipse.aether.resolution.ArtifactResult;
+import org.eclipse.aether.resolution.*;
 import org.eclipse.aether.spi.connector.RepositoryConnectorFactory;
 import org.eclipse.aether.spi.connector.transport.TransporterFactory;
 import org.eclipse.aether.transport.file.FileTransporterFactory;
 import org.eclipse.aether.transport.http.HttpTransporterFactory;
+import org.eclipse.aether.version.Version;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,8 +32,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static com.uraurora.dependency.resolver.util.Options.map;
-import static com.uraurora.dependency.resolver.util.Options.with;
+import static com.uraurora.dependency.resolver.util.Options.*;
 
 /**
  * @author : gaoxiaodong04
@@ -44,6 +43,61 @@ import static com.uraurora.dependency.resolver.util.Options.with;
 public abstract class ResolveUtils {
 
     private static final String STRING_NONE = "none";
+
+    public static RepositorySystem newSystem() {
+        DefaultServiceLocator locator = MavenRepositorySystemUtils.newServiceLocator();
+        return map(locator, l -> {
+            l.addService(RepositoryConnectorFactory.class, BasicRepositoryConnectorFactory.class);
+            l.addService(TransporterFactory.class, FileTransporterFactory.class);
+            l.addService(TransporterFactory.class, HttpTransporterFactory.class);
+            return l.getService(RepositorySystem.class);
+        });
+    }
+
+    public static RepositorySystemSession newSession(RepositorySystem system, Path path) {
+        return map(system, s -> {
+            DefaultRepositorySystemSession res = MavenRepositorySystemUtils.newSession();
+            LocalRepository localRepo = new LocalRepository(path.toFile());
+            res.setLocalRepositoryManager(s.newLocalRepositoryManager(res, localRepo));
+            return res;
+        });
+    }
+
+    public static boolean isRemote(String groupId, String artifact, String version, List<RemoteRepository> remoteRepositories) {
+        try {
+            VersionRangeResult rangeResult = getVersionRangeResult(groupId, artifact, remoteRepositories);
+            return rangeResult.getVersions().stream()
+                    .map(Version::toString)
+                    .collect(Collectors.toList())
+                    .contains(version);
+        } catch (VersionRangeResolutionException e) {
+            return false;
+        }
+    }
+
+    public static boolean isRemote(String groupId, String artifact, List<RemoteRepository> remoteRepositories) {
+        try {
+            VersionRangeResult rangeResult = getVersionRangeResult(groupId, artifact, remoteRepositories);
+            return rangeResult.getVersions().size() > 0;
+        } catch (VersionRangeResolutionException e) {
+            return false;
+        }
+    }
+
+    protected static VersionRangeResult getVersionRangeResult(String groupId, String artifact, List<RemoteRepository> remoteRepositories) throws VersionRangeResolutionException {
+        final RepositorySystem system = newSystem();
+        final RepositorySystemSession session = newSession(system, Paths.get(FileConstants.LOCAL_TEMP_PATH));
+        VersionRangeRequest rangeRequest = new VersionRangeRequest();
+        rangeRequest.setRepositories(remoteRepositories);
+        rangeRequest.setArtifact(new DefaultArtifact(buildString(sb -> {
+            sb.append(groupId).append(":")
+                    .append(artifact).append(":")
+                    .append("[,)");
+        })));
+        final VersionRangeResult result = system.resolveVersionRange(session, rangeRequest);
+        return result;
+    }
+
 
     /**
      * 指定下载目录，根据artifact下载pom文件到本地

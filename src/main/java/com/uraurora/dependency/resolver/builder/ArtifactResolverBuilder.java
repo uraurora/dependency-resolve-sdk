@@ -3,6 +3,7 @@ package com.uraurora.dependency.resolver.builder;
 import com.uraurora.dependency.resolver.IArtifactResolver;
 import org.eclipse.aether.repository.RemoteRepository;
 
+import java.nio.file.Path;
 import java.util.List;
 
 /**
@@ -23,6 +24,16 @@ public class ArtifactResolverBuilder {
      */
     private String mavenHome;
 
+    /**
+     * 是否从远程获取
+     */
+    private boolean remote = true;
+
+    /**
+     * 本地maven仓库路径
+     */
+    private Path localRepo;
+
     private ArtifactResolverBuilder() {
     }
 
@@ -38,6 +49,28 @@ public class ArtifactResolverBuilder {
     public ArtifactResolverBuilder withMavenHome(String mavenHome) {
         this.mavenHome = mavenHome;
         return this;
+    }
+
+    public ArtifactResolverBuilder withLocal() {
+        this.remote = false;
+        return this;
+    }
+
+    public ArtifactResolverBuilder withRemote() {
+        this.remote = true;
+        return this;
+    }
+
+    public void withLocalRepo(Path localRepo) {
+        this.localRepo = localRepo;
+    }
+
+    public boolean isRemote() {
+        return remote;
+    }
+
+    public Path getLocalRepo() {
+        return localRepo;
     }
 
     public List<RemoteRepository> getRemoteRepositories() {

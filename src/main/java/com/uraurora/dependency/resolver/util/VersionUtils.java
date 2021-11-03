@@ -21,6 +21,7 @@ public abstract class VersionUtils {
 
     public static final Pattern SNAPSHOT_TIMESTAMP = Pattern.compile("^(.*-)?([0-9]{8}\\.[0-9]{6}-[0-9]+)$");
 
+    public static final String SNAPSHOT_POM_REGEX = "^(.*-)?([0-9]{8}\\.[0-9]{6}-[0-9]+)(.pom)+$";
     /**
      * 获取基础版本
      *

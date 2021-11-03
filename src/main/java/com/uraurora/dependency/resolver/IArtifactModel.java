@@ -1,4 +1,7 @@
 package com.uraurora.dependency.resolver;
 
-public interface IArtifactModel {
+/**
+ * @author gaoxiaodong
+ */
+public interface IArtifactModel<T> {
 }
