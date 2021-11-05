@@ -1,6 +1,5 @@
 package com.uraurora.dependency.resolver.builder;
 
-import com.uraurora.dependency.resolver.IArtifactResolver;
 import org.eclipse.aether.repository.RemoteRepository;
 
 import java.nio.file.Path;
@@ -17,57 +16,37 @@ public class ArtifactResolverBuilder {
     /**
      * maven远程仓库
      */
-    private List<RemoteRepository> remoteRepositories;
+    protected List<RemoteRepository> remoteRepositories;
 
     /**
      * maven home，maven路径
      */
-    private String mavenHome;
+    protected String mavenHome = System.getenv("MAVEN_HOME");
 
-    /**
-     * 是否从远程获取
-     */
-    private boolean remote = true;
 
     /**
      * 本地maven仓库路径
      */
-    private Path localRepo;
+    protected Path localRepo;
 
-    private ArtifactResolverBuilder() {
+
+    public ArtifactResolverBuilder() {
+
     }
 
     public static ArtifactResolverBuilder builder() {
         return new ArtifactResolverBuilder();
     }
 
-    public ArtifactResolverBuilder withRemoteRepositories(List<RemoteRepository> remoteRepositories) {
-        this.remoteRepositories = remoteRepositories;
-        return this;
+
+    public LocalArtifactResolverBuilder withLocal() {
+        return new LocalArtifactResolverBuilder();
     }
 
-    public ArtifactResolverBuilder withMavenHome(String mavenHome) {
-        this.mavenHome = mavenHome;
-        return this;
+    public RemoteArtifactResolverBuilder withRemote() {
+        return new RemoteArtifactResolverBuilder();
     }
 
-    public ArtifactResolverBuilder withLocal() {
-        this.remote = false;
-        return this;
-    }
-
-    public ArtifactResolverBuilder withRemote() {
-        this.remote = true;
-        return this;
-    }
-
-    public void withLocalRepo(Path localRepo) {
-        this.localRepo = localRepo;
-    }
-
-    public boolean isRemote() {
-        return remote;
-    }
 
     public Path getLocalRepo() {
         return localRepo;
@@ -79,9 +58,5 @@ public class ArtifactResolverBuilder {
 
     public String getMavenHome() {
         return mavenHome;
-    }
-
-    public IArtifactResolver build() {
-        return null;
     }
 }

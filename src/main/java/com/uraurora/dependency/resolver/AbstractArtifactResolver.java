@@ -15,6 +15,7 @@ import org.apache.maven.model.InputSource;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3ReaderEx;
 import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
+import org.codehaus.plexus.util.StringUtils;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.artifact.DefaultArtifact;
@@ -48,7 +49,7 @@ public abstract class AbstractArtifactResolver {
     public static final String PACKING_TYPE_JAR = "jar";
 
     /**
-     * maven根目录路径
+     * maven根目录路径, optional
      */
     protected final String mavenHome;
     /**
@@ -59,8 +60,10 @@ public abstract class AbstractArtifactResolver {
      * maven远程仓库
      */
     protected final List<RemoteRepository> remoteRepositories;
-
-    protected final Path localCachePath;
+    /**
+     * 执行maven命令的本地缓存文件夹, optional
+     */
+    protected final String localCachePath;
 
     /**
      * pom文件的真实描述对象
@@ -82,7 +85,7 @@ public abstract class AbstractArtifactResolver {
     protected final MavenXpp3Writer writer = new MavenXpp3Writer();
 
 
-    protected AbstractArtifactResolver(Path targetPath, List<RemoteRepository> remoteRepositories, String mavenHome, Path localCachePath) {
+    protected AbstractArtifactResolver(Path targetPath, List<RemoteRepository> remoteRepositories, String mavenHome, String localCachePath) {
         this.targetPath = targetPath;
         this.remoteRepositories = remoteRepositories;
         this.mavenHome = mavenHome;
@@ -91,6 +94,18 @@ public abstract class AbstractArtifactResolver {
 
     //<editor-fold desc="override interface methods">
 
+    //<editor-fold desc="getter">
+    public Artifact getArtifact() {
+        return artifact;
+    }
+
+    /**
+     * 实际的pom文件路径
+     *
+     * @return 文件路径
+     */
+    protected abstract Path getPomPath();
+
     public Path path() {
         return targetPath;
     }
@@ -98,6 +113,17 @@ public abstract class AbstractArtifactResolver {
     public Model model() {
         return model;
     }
+
+    protected String getLocalCachePath() {
+        return StringUtils.isBlank(localCachePath) ?
+                FileConstants.LOCAL_TEMP_PATH : localCachePath;
+    }
+
+    protected List<RemoteRepository> getRemoteRepositories() {
+        return remoteRepositories;
+    }
+
+    //</editor-fold>
 
     public List<Dependency> dependencies() throws Exception {
         final Path mavenPath = Paths.get(mavenHome);
@@ -190,28 +216,20 @@ public abstract class AbstractArtifactResolver {
         return Sets.union(new HashSet<>(this.dependencies()), new HashSet<>(other.dependencies()));
     }
 
-    public Artifact getArtifact() {
-        return artifact;
-    }
     //</editor-fold>
 
     /**
-     * 实际的pom文件路径
-     *
-     * @return 文件路径
-     */
-    protected abstract Path getPomPath();
-
-    /**
      * 缓存策略标志位，为true表示需要重新获取，否则缓存有数据
+     *
      * @param commandEnum 命令枚举
-     * @throws IOException io异常
      * @return 是否需要重新获取数据
+     * @throws IOException io异常
      */
     protected abstract boolean cacheAsideReadFlag(MavenCommandEnum commandEnum) throws IOException;
 
     /**
      * 获取新的结果后需要写缓存
+     *
      * @throws IOException io异常
      */
     protected abstract void cacheAsideWrite() throws IOException;
@@ -233,7 +251,7 @@ public abstract class AbstractArtifactResolver {
         final String groupId = getArtifact().getGroupId();
         final String artifactId = getArtifact().getArtifactId();
         final String version = getArtifact().getVersion();
-        Path path = localCachePath
+        Path path = Paths.get(getLocalCachePath())
                 .resolve(groupId)
                 .resolve(artifactId)
                 .resolve(version);

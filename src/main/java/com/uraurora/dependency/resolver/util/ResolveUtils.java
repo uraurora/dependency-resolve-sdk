@@ -84,7 +84,7 @@ public abstract class ResolveUtils {
         }
     }
 
-    protected static VersionRangeResult getVersionRangeResult(String groupId, String artifact, List<RemoteRepository> remoteRepositories) throws VersionRangeResolutionException {
+    public static VersionRangeResult getVersionRangeResult(String groupId, String artifact, List<RemoteRepository> remoteRepositories) throws VersionRangeResolutionException {
         final RepositorySystem system = newSystem();
         final RepositorySystemSession session = newSession(system, Paths.get(FileConstants.LOCAL_TEMP_PATH));
         VersionRangeRequest rangeRequest = new VersionRangeRequest();

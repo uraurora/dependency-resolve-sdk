@@ -38,15 +38,7 @@ public class CommonUtils {
             if (i < j) swap(q, i, j);
         }
         quickSort(q, l, j);
-        quickSort(q, j+1, r);
-    }
-
-    static void heapSort(int[] q, int l, int r) {
-
-    }
-
-    static void heapify(int q, int i) {
-
+        quickSort(q, j + 1, r);
     }
 
     static void swap(int[] q, int i, int j) {
@@ -89,13 +81,6 @@ public class CommonUtils {
         }
     }
 
-    public static void main(String[] args) {
-        testSort();
-        testSqrt();
-//        testPrefixSum();
-    }
-
-    static int[][] s = new int[1010][1010];
 
     /**
      * 3 4 3
@@ -112,9 +97,12 @@ public class CommonUtils {
      * 21
      */
     private static void testPrefixSum() {
+        int[][] s = new int[1010][1010];
         int n, m, r;
         Scanner sc = new Scanner(new BufferedInputStream(System.in));
-        n = sc.nextInt();m = sc.nextInt();r = sc.nextInt();
+        n = sc.nextInt();
+        m = sc.nextInt();
+        r = sc.nextInt();
         int[][] q = new int[n + 1][m + 1];
         for (int i = 1; i <= n; i++) {
             for (int j = 1; j <= m; j++) {
@@ -128,7 +116,38 @@ public class CommonUtils {
         }
         int x1, y1, x2, y2;
         while (r-- > 0) {
-            x1 = sc.nextInt();y1 = sc.nextInt();x2 = sc.nextInt();y2 = sc.nextInt();
+            x1 = sc.nextInt();
+            y1 = sc.nextInt();
+            x2 = sc.nextInt();
+            y2 = sc.nextInt();
+            System.out.println(s[x2][y2] + s[x1 - 1][y1 - 1] - s[x2][y1 - 1] - s[x1 - 1][y2]);
+        }
+    }
+
+    static void testPrefixSum2() {
+        int[][] s = new int[100][100];
+        Scanner sc = new Scanner(new BufferedInputStream(System.in));
+        int n, m, r;
+        n = sc.nextInt();
+        m = sc.nextInt();
+        r = sc.nextInt();
+        int[][] a = new int[n + 1][m + 1];
+        for (int i = 1; i <= n; i++) {
+            for (int j = 1; j <= m; j++) {
+                a[i][j] = sc.nextInt();
+            }
+        }
+        for (int i = 1; i <= n; i++) {
+            for (int j = 1; j <= m; j++) {
+                s[i][j] = s[i - 1][j] + s[i][j - 1] - s[i - 1][j - 1] + a[i][j];
+            }
+        }
+        int x1, y1, x2, y2;
+        while (r-- > 0) {
+            x1 = sc.nextInt();
+            y1 = sc.nextInt();
+            x2 = sc.nextInt();
+            y2 = sc.nextInt();
             System.out.println(s[x2][y2] + s[x1 - 1][y1 - 1] - s[x2][y1 - 1] - s[x1 - 1][y2]);
         }
     }
@@ -142,8 +161,39 @@ public class CommonUtils {
         System.out.println(Arrays.toString(a1));
     }
 
+
+    private static void testDiff() {
+        int[] d = new int[10010];
+        int n, q, l, r, c;
+        Scanner sc = new Scanner(new BufferedInputStream(System.in));
+        n = sc.nextInt();
+        q = sc.nextInt();
+        int[] a = new int[n + 1];
+        for (int i = 1; i <= n; i++) a[i] = sc.nextInt();
+        for (int i = 0; i < n; i++) d[i + 1] = a[i + 1] - a[i];
+        while (q-- > 0) {
+            l = sc.nextInt();
+            r = sc.nextInt();
+            c = sc.nextInt();
+            d[l + 1] += c;
+            d[r] -= c;
+        }
+        int count = 0;
+        for (int i = 1; i <= n; i++) {
+            count += d[i];
+            System.out.println(count + " ");
+        }
+    }
+
     static void testSqrt() {
         System.out.println(sqrt(3));
+    }
+
+    public static void main(String[] args) {
+        testSort();
+        testSqrt();
+//        testPrefixSum();
+        testDiff();
     }
 
 }

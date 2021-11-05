@@ -1,16 +1,24 @@
 package com.uraurora.dependency.resolver;
 
+import com.uraurora.dependency.resolver.constants.FileConstants;
 import com.uraurora.dependency.resolver.enums.MavenCommandEnum;
 import com.uraurora.dependency.resolver.util.FileUtils;
 import com.uraurora.dependency.resolver.util.ResolveUtils;
 import com.uraurora.dependency.resolver.value.FileInfoContext;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.aether.RepositorySystem;
+import org.eclipse.aether.RepositorySystemSession;
+import org.eclipse.aether.artifact.Artifact;
+import org.eclipse.aether.collection.CollectRequest;
+import org.eclipse.aether.collection.CollectResult;
 import org.eclipse.aether.graph.Dependency;
 import org.eclipse.aether.graph.DependencyNode;
 import org.eclipse.aether.repository.RemoteRepository;
 import org.eclipse.aether.resolution.ArtifactDescriptorException;
 import org.eclipse.aether.resolution.VersionRangeResolutionException;
+import org.eclipse.aether.resolution.VersionRangeResult;
+import org.eclipse.aether.util.graph.visitor.PreorderNodeListGenerator;
 import org.eclipse.aether.version.Version;
 
 import java.io.BufferedReader;
@@ -18,12 +26,16 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.uraurora.dependency.resolver.util.Options.emptyString;
+import static com.uraurora.dependency.resolver.util.Options.orDefault;
+import static com.uraurora.dependency.resolver.util.ResolveUtils.newSession;
+import static com.uraurora.dependency.resolver.util.ResolveUtils.newSystem;
 import static com.uraurora.dependency.resolver.util.VersionUtils.SNAPSHOT_POM_REGEX;
 
 /**
@@ -39,7 +51,7 @@ public class RemoteArtifactResolver extends AbstractArtifactResolver
 
     private final Path pomPath;
 
-    protected RemoteArtifactResolver(Path targetPath, List<RemoteRepository> remoteRepositories, String mavenHome) throws Exception {
+    protected RemoteArtifactResolver(Artifact artifact, Path targetPath, List<RemoteRepository> remoteRepositories, String mavenHome, String localCachePath) throws Exception {
         super(targetPath, remoteRepositories, mavenHome, localCachePath);
         this.artifact = artifactCheck(artifact);
         this.pomPath = ResolveUtils.download(this.artifact, targetPath, this.remoteRepositories);
@@ -107,22 +119,37 @@ public class RemoteArtifactResolver extends AbstractArtifactResolver
 
     @Override
     public List<Dependency> dependenciesByJar() throws Exception {
-        return null;
+        final DependencyNode root = dependenciesTreeByJar();
+        final PreorderNodeListGenerator preorderGenerator = new PreorderNodeListGenerator();
+        root.accept(preorderGenerator);
+        final List<Dependency> dependencies = preorderGenerator.getDependencies(true);
+        dependencies.remove(0);
+        return dependencies;
     }
 
     @Override
     public DependencyNode dependenciesTreeByJar() throws Exception {
-        return null;
+        final Path localRepoPath = Paths.get(orDefault(getLocalCachePath(), FileConstants.LOCAL_TEMP_PATH));
+        final RepositorySystem system = newSystem();
+        final RepositorySystemSession session = newSession(system, localRepoPath);
+
+        CollectRequest collectRequest = new CollectRequest();
+        collectRequest.setRoot(new Dependency(artifact, ""));
+        collectRequest.setRepositories(getRemoteRepositories());
+        CollectResult collectResult = system.collectDependencies(session, collectRequest);
+        return collectResult.getRoot();
     }
 
     @Override
     public List<Version> findAvailableVersions() throws VersionRangeResolutionException {
-        return null;
+        final VersionRangeResult versionRangeResult = ResolveUtils.getVersionRangeResult(artifact.getGroupId(), artifact.getArtifactId(), remoteRepositories);
+        return versionRangeResult.getVersions();
     }
 
     @Override
     public Version findLatestVersion() throws VersionRangeResolutionException {
-        return null;
+        final VersionRangeResult versionRangeResult = ResolveUtils.getVersionRangeResult(artifact.getGroupId(), artifact.getArtifactId(), remoteRepositories);
+        return versionRangeResult.getHighestVersion();
     }
 
 
