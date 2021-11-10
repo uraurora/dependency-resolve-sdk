@@ -23,6 +23,10 @@ import org.eclipse.aether.graph.DefaultDependencyNode;
 import org.eclipse.aether.graph.Dependency;
 import org.eclipse.aether.graph.DependencyNode;
 import org.eclipse.aether.repository.RemoteRepository;
+import org.eclipse.aether.resolution.ArtifactDescriptorException;
+import org.eclipse.aether.resolution.VersionRangeResolutionException;
+import org.eclipse.aether.resolution.VersionRangeResult;
+import org.eclipse.aether.version.Version;
 
 import java.io.File;
 import java.io.IOException;
@@ -55,7 +59,7 @@ public abstract class AbstractArtifactResolver {
     /**
      * pom文件路径
      */
-    protected final Path targetPath;
+    protected final String targetPath;
     /**
      * maven远程仓库
      */
@@ -85,7 +89,7 @@ public abstract class AbstractArtifactResolver {
     protected final MavenXpp3Writer writer = new MavenXpp3Writer();
 
 
-    protected AbstractArtifactResolver(Path targetPath, List<RemoteRepository> remoteRepositories, String mavenHome, String localCachePath) {
+    protected AbstractArtifactResolver(String targetPath, List<RemoteRepository> remoteRepositories, String mavenHome, String localCachePath) {
         this.targetPath = targetPath;
         this.remoteRepositories = remoteRepositories;
         this.mavenHome = mavenHome;
@@ -107,7 +111,7 @@ public abstract class AbstractArtifactResolver {
     protected abstract Path getPomPath();
 
     public Path path() {
-        return targetPath;
+        return Paths.get(targetPath);
     }
 
     public Model model() {
@@ -193,6 +197,8 @@ public abstract class AbstractArtifactResolver {
         return res;
     }
 
+    public abstract List<Dependency> directDependencies() throws ArtifactDescriptorException;
+
     public ArtifactDiff diff(IDependencyCollector other) throws Exception {
         final Set<Dependency> source = setOf(this.dependencies());
         final Set<Dependency> target = Options.setOf(other.dependencies());
@@ -216,6 +222,10 @@ public abstract class AbstractArtifactResolver {
         return Sets.union(new HashSet<>(this.dependencies()), new HashSet<>(other.dependencies()));
     }
 
+
+    public abstract List<Version> findAvailableVersions() throws VersionRangeResolutionException;
+
+    public abstract Version findLatestVersion() throws VersionRangeResolutionException;
     //</editor-fold>
 
     /**
@@ -265,9 +275,9 @@ public abstract class AbstractArtifactResolver {
         writer.write(Files.newBufferedWriter(path), model);
     }
 
-    protected Model buildModel(Path pomPath) throws IOException, XmlPullParserException {
+    protected Model buildModel(String pomPath) throws IOException, XmlPullParserException {
         return reader.read(
-                Files.newBufferedReader(pomPath),
+                Files.newBufferedReader(Paths.get(pomPath)),
                 true,
                 with(new InputSource(), m -> {
                     m.setLocation(pomPath.toString());

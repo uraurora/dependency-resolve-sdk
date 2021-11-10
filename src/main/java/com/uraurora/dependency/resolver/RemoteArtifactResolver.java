@@ -51,10 +51,10 @@ public class RemoteArtifactResolver extends AbstractArtifactResolver
 
     private final Path pomPath;
 
-    protected RemoteArtifactResolver(Artifact artifact, Path targetPath, List<RemoteRepository> remoteRepositories, String mavenHome, String localCachePath) throws Exception {
+    protected RemoteArtifactResolver(Artifact artifact, String targetPath, List<RemoteRepository> remoteRepositories, String mavenHome, String localCachePath) throws Exception {
         super(targetPath, remoteRepositories, mavenHome, localCachePath);
         this.artifact = artifactCheck(artifact);
-        this.pomPath = ResolveUtils.download(this.artifact, targetPath, this.remoteRepositories);
+        this.pomPath = ResolveUtils.download(this.artifact, path(), this.remoteRepositories);
         this.model = buildModel(pomPath);
     }
 

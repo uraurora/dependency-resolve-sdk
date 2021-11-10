@@ -6,7 +6,6 @@ import org.eclipse.aether.graph.DependencyNode;
 import org.eclipse.aether.graph.DependencyVisitor;
 import org.eclipse.aether.resolution.ArtifactDescriptorException;
 
-import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
 

@@ -1,6 +1,5 @@
 package com.uraurora.dependency.resolver;
 
-import com.uraurora.dependency.resolver.builder.ArtifactResolverBuilder;
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.aether.repository.RemoteRepository;
@@ -9,7 +8,6 @@ import org.junit.Test;
 import java.util.List;
 
 import static com.uraurora.dependency.resolver.util.Options.listOf;
-import static org.junit.Assert.*;
 
 public class RemoteArtifactResolverTest {
 
@@ -20,10 +18,6 @@ public class RemoteArtifactResolverTest {
             new RemoteRepository.Builder("meituan-dianping-releases", "default", "http://pixel.sankuai.com/repository/group-releases").build()
     );
 
-    RemoteArtifactResolver resolver = ArtifactResolverBuilder.builder()
-            .withRemote()
-            .withRemoteRepositories(REMOTE_REPOSITORIES)
-            .build();
 
 
 
