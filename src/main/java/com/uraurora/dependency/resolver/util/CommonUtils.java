@@ -15,30 +15,28 @@ public class CommonUtils {
     static int[] tmp = new int[100];
 
     static void mergeSort(int[] q, int l, int r) {
-        if (l >= r) return;
-        int mid = l + r >> 1;
-        mergeSort(q, l, mid);
-        mergeSort(q, mid + 1, r);
-        int i = l, j = mid + 1, k = 0;
-        while (i <= mid && j <= r) {
-            if (q[i] < q[j]) tmp[k++] = q[i++];
+        if(l >= r)return;
+        int mid = l+r>>1;
+        mergeSort(q, l, mid);mergeSort(q, mid+1, r);
+        int i = l, j = mid +1, k=0;
+        while(i<=mid&&j<=r){
+            if(q[i]<q[j])tmp[k++] = q[i++];
             else tmp[k++] = q[j++];
         }
-        while (i <= mid) tmp[k++] = q[i++];
-        while (j <= r) tmp[k++] = q[j++];
-        for (i = l, j = 0; i <= r; i++, j++) q[i] = tmp[j];
+        while(i<=mid)tmp[k++] = q[i++];
+        while(j<=r)tmp[k++] = q[j++];
+        for(i = l, j = 0; i<=r;i++,j++) q[i] = tmp[j];
     }
 
     static void quickSort(int[] q, int l, int r) {
-        if (l >= r) return;
-        int i = l - 1, j = r + 1, x = q[l];
-        while (i < j) {
-            do i++; while (q[i] < x);
-            do j--; while (q[j] > x);
-            if (i < j) swap(q, i, j);
+        if(l >= r)return;
+        int i = l-1, j= r+1,x =q[l+r>>1];
+        while(i<j){
+            do i++;while(q[i] < x);
+            do j--;while (q[j] > x);
+            if(i < j) swap(q, i, j);
         }
-        quickSort(q, l, j);
-        quickSort(q, j + 1, r);
+        quickSort(q, l, j);quickSort(q, j+1, r);
     }
 
     static void swap(int[] q, int i, int j) {

@@ -275,9 +275,9 @@ public abstract class AbstractArtifactResolver {
         writer.write(Files.newBufferedWriter(path), model);
     }
 
-    protected Model buildModel(String pomPath) throws IOException, XmlPullParserException {
+    protected Model buildModel(Path pomPath) throws IOException, XmlPullParserException {
         return reader.read(
-                Files.newBufferedReader(Paths.get(pomPath)),
+                Files.newBufferedReader(pomPath),
                 true,
                 with(new InputSource(), m -> {
                     m.setLocation(pomPath.toString());
