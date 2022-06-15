@@ -76,14 +76,14 @@ public interface IDependencyCollector {
     ArtifactDiff diffExplicitly(IDependencyCollector other) throws Exception;
 
     /**
-     * 根据下载jar信息来获取依赖列表，只有remote仓库中存在的artifact才可以调用此方法，参考{@link com.sankuai.fbi.dependency.sdk.dependency.impl.RemoteArtifactResolver}
+     * 根据下载jar信息来获取依赖列表，只有remote仓库中存在的artifact才可以调用此方法，参考{@link RemoteArtifactResolver}
      * @return 传递依赖列表
      * @throws Exception 异常信息
      */
     List<Dependency> dependenciesByJar() throws Exception;
 
     /**
-     * 根据jar信息获取依赖树根节点，只有remote仓库中存在的artifact才可以调用此方法，参考{@link com.sankuai.fbi.dependency.sdk.dependency.impl.RemoteArtifactResolver}
+     * 根据jar信息获取依赖树根节点，只有remote仓库中存在的artifact才可以调用此方法，参考{@link RemoteArtifactResolver}
      * @return 传递依赖根节点
      * @throws Exception 异常信息
      */

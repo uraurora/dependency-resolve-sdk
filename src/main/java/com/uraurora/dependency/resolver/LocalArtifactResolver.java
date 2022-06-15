@@ -39,7 +39,7 @@ public class LocalArtifactResolver extends AbstractArtifactResolver
 
 
 
-    protected LocalArtifactResolver(String targetPath, List<RemoteRepository> remoteRepositories, String mavenHome, String localCachePath) throws Exception {
+    public LocalArtifactResolver(String targetPath, List<RemoteRepository> remoteRepositories, String mavenHome, String localCachePath) throws Exception {
         super(targetPath, remoteRepositories, mavenHome, localCachePath);
         checkFile(getPomPath());
         this.model = buildModel(Paths.get(targetPath));

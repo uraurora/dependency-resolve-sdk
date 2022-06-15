@@ -1,5 +1,7 @@
 package com.uraurora.dependency.resolver;
 
+import org.eclipse.aether.artifact.Artifact;
+import org.eclipse.aether.artifact.DefaultArtifact;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
